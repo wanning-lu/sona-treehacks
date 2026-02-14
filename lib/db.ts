@@ -1,7 +1,11 @@
-import { sql } from "@vercel/postgres";
+import { neon } from "@neondatabase/serverless";
 
-// Note: Vercel Postgres is deprecated. Consider migrating to Neon.
-// See: https://neon.com/docs/guides/vercel-postgres-transition-guide
+if (!process.env.DATABASE_URL) {
+  throw new Error("DATABASE_URL environment variable is not set");
+}
+
+// Initialize Neon serverless driver
+const sql = neon(process.env.DATABASE_URL);
 
 export async function createTables() {
   // Create sessions table for storing conversation sessions

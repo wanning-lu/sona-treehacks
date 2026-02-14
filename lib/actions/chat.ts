@@ -13,11 +13,11 @@ export async function sendMessage(sessionId: number, userMessage: string) {
       SELECT conversation_id FROM sessions WHERE id = ${sessionId}
     `;
 
-    if (!session.rows.length) {
+    if (!session.length) {
       return { success: false, error: "Session not found" };
     }
 
-    const conversationId = session.rows[0].conversation_id;
+    const conversationId = session[0].conversation_id;
 
     // Use Responses API with conversation ID - OpenAI manages conversation state
     const response = await openai.responses.create({

@@ -11,7 +11,7 @@ Sona TreeHacks is a voice-based AI chatbot web application that allows users to 
 - Tailwind CSS v4
 - OpenAI GPT-5 for AI agents
 - OpenAI Whisper for voice-to-text transcription
-- Vercel Postgres for data persistence (deprecated - consider migrating to Neon)
+- Neon Postgres for data persistence
 - Vitest for testing
 - Deployed on Vercel
 
@@ -22,7 +22,7 @@ Sona TreeHacks is a voice-based AI chatbot web application that allows users to 
 - `npm run start` - Start production server
 - `npm run lint` - Run Next.js linter
 - `npm test` - Run Vitest tests in watch mode
-- `npm run test:run` - Run tests once (useful for CI)
+- `npm run db:setup` - Initialize database tables (one-time setup)
 
 ## Architecture
 
@@ -121,9 +121,7 @@ The [VoiceRecorder component](components/VoiceRecorder.tsx) uses:
 
 Required environment variables (see [.env.example](.env.example)):
 - `OPENAI_API_KEY` - OpenAI API key for GPT-4 and Whisper
-- `POSTGRES_*` - Database credentials (auto-provided by Vercel in production)
-
-**Note:** Vercel Postgres is deprecated. For new databases, consider migrating to Neon as recommended by Vercel.
+- `DATABASE_URL` - Neon Postgres connection string (format: `postgresql://user:password@host/database?sslmode=require`)
 
 ## Testing
 
@@ -136,10 +134,16 @@ Tests are written using Vitest with React Testing Library:
 ## Deployment
 
 Deploy to Vercel:
-1. Connect GitHub repository to Vercel
-2. Add `OPENAI_API_KEY` to environment variables
-3. Set up Vercel Postgres (or Neon) and environment variables will be auto-populated
+1. Create a Neon project at [neon.tech](https://neon.tech)
+2. Connect GitHub repository to Vercel
+3. Add environment variables in Vercel:
+   - `OPENAI_API_KEY` - Your OpenAI API key
+   - `DATABASE_URL` - Your Neon database connection string
 4. Deploy
+5. Initialize database tables using one of these methods:
+   - Run `npm run db:setup` locally (recommended)
+   - Visit `/api/setup` endpoint once (requires `SETUP_SECRET` in production)
+   - Run SQL directly in Neon console (see [DATABASE_SETUP.md](DATABASE_SETUP.md))
 
 ## Important Conventions
 

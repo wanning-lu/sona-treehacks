@@ -32,12 +32,12 @@ export async function generateFeedback(sessionId: number) {
       ORDER BY timestamp ASC
     `;
 
-    if (transcript.rows.length === 0) {
+    if (transcript.length === 0) {
       return { success: false, error: "No transcript found" };
     }
 
     // Format transcript for analysis
-    const conversationText = transcript.rows
+    const conversationText = transcript
       .map((msg) => `${msg.role.toUpperCase()}: ${msg.content}`)
       .join("\n\n");
 
@@ -97,7 +97,7 @@ export async function getFeedback(sessionId: number) {
       ORDER BY created_at DESC
     `;
 
-    return { success: true, feedback: result.rows };
+    return { success: true, feedback: result };
   } catch (error) {
     console.error("Error fetching feedback:", error);
     return { success: false, error: "Failed to fetch feedback" };

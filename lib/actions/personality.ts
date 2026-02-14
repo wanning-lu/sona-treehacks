@@ -47,12 +47,6 @@ export async function generatePersonality(userPreferences: string) {
 
     // Create a conversation with the generated personality using Conversations API
     const conversation = await openai.conversations.create({
-      metadata: {
-        personality: result.traits.join(", "),
-        tone: result.tone,
-        background: result.background,
-        scenario: result.scenario,
-      },
       items: [
         {
           type: "message",
@@ -77,7 +71,7 @@ export async function generatePersonality(userPreferences: string) {
 
     return {
       success: true,
-      sessionId: session.rows[0].id,
+      sessionId: session[0].id,
       conversationId: conversation.id,
       personality: result as Personality,
       scenario: result.scenario

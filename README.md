@@ -11,9 +11,9 @@ A voice-based AI chatbot application that helps users practice conversations wit
 ## Tech Stack
 
 - **Framework:** Next.js 16 with TypeScript
-- **Styling:** Tailwind CSS
-- **AI:** OpenAI GPT-4 for conversation and analysis, Whisper for voice transcription
-- **Database:** Vercel Postgres (consider migrating to Neon)
+- **Styling:** Tailwind CSS v4
+- **AI:** OpenAI GPT-5 for conversation and analysis, Whisper for voice transcription
+- **Database:** Neon Postgres
 - **Testing:** Vitest with React Testing Library
 - **Deployment:** Vercel
 
@@ -23,6 +23,7 @@ A voice-based AI chatbot application that helps users practice conversations wit
 
 - Node.js 18+ and npm
 - OpenAI API key
+- Neon database (free tier available at [neon.tech](https://neon.tech))
 
 ### Installation
 
@@ -37,9 +38,10 @@ A voice-based AI chatbot application that helps users practice conversations wit
    cp .env.example .env.local
    ```
 
-4. Add your OpenAI API key to `.env.local`:
+4. Add your credentials to `.env.local`:
    ```
-   OPENAI_API_KEY=your_key_here
+   OPENAI_API_KEY=your_openai_key_here
+   DATABASE_URL=your_neon_database_url_here
    ```
 
 5. Start the development server:

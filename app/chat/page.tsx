@@ -5,7 +5,6 @@ import { useSearchParams, useRouter } from "next/navigation";
 import VoiceRecorder from "@/components/VoiceRecorder";
 import ChatMessage from "@/components/ChatMessage";
 import { sendMessage } from "@/lib/actions/chat";
-import type { Personality } from "@/lib/types";
 
 export default function ChatPage() {
   const searchParams = useSearchParams();
@@ -13,31 +12,26 @@ export default function ChatPage() {
   const sessionId = searchParams.get("session");
 
   const [messages, setMessages] = useState<Array<{ role: "user" | "assistant"; content: string }>>([]);
-  const [personality, setPersonality] = useState<Personality | null>(null);
+  const [loading, setLoading] = useState(true);
 
-  // TODO: Fetch session data and personality from database
   useEffect(() => {
     if (!sessionId) {
       router.push("/setup");
       return;
     }
 
-    // Mock personality for now - replace with actual DB fetch
-    setPersonality({
-      traits: ["friendly", "professional"],
-      tone: "conversational",
-      background: "Software engineering interviewer",
-    });
+    // Session is validated, ready to chat
+    setLoading(false);
   }, [sessionId, router]);
 
   async function handleTranscript(text: string) {
-    if (!sessionId || !personality) return;
+    if (!sessionId) return;
 
     // Add user message to UI
     setMessages((prev) => [...prev, { role: "user", content: text }]);
 
-    // Get AI response
-    const result = await sendMessage(parseInt(sessionId), text, personality);
+    // Get AI response - conversation state is managed by OpenAI
+    const result = await sendMessage(parseInt(sessionId), text);
 
     if (result.success && result.message) {
       setMessages((prev) => [...prev, { role: "assistant", content: result.message }]);
@@ -48,7 +42,7 @@ export default function ChatPage() {
     router.push(`/dashboard?session=${sessionId}`);
   }
 
-  if (!personality) return <div>Loading...</div>;
+  if (loading) return <div>Loading...</div>;
 
   return (
     <main className="min-h-screen flex flex-col bg-gray-50">

@@ -1,7 +1,7 @@
 export interface Personality {
-  traits: string[];
-  tone: string;
-  background: string;
+  traits: string[],
+  tone: string
+  background: string
 }
 
 export interface Session {
@@ -18,12 +18,4 @@ export interface Message {
   role: "user" | "assistant";
   content: string;
   timestamp: Date;
-}
-
-export interface Feedback {
-  id: number;
-  sessionId: number;
-  analysis: string;
-  suggestions: string[];
-  createdAt: Date;
 }

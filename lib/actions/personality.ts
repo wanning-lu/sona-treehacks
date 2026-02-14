@@ -1,17 +1,27 @@
 "use server";
 
 import { openai } from "@/lib/openai";
+import { zodTextFormat } from "openai/helpers/zod";
+import { z } from "zod";
 import { sql } from "@/lib/db";
-import type { Personality } from "@/lib/types";
+import { Personality } from "@/lib/types";
+
+const PersonalityObj = z.object({
+  traits: z.array(z.string()),
+  tone: z.string(),
+  background: z.string(),
+  scenario: z.string()
+});
 
 /**
- * Agent 1: Generate personality and scenario based on user preferences
+ * Generate personality and scenario details based on user preferences
  */
 export async function generatePersonality(userPreferences: string) {
   try {
-    const completion = await openai.chat.completions.create({
-      model: "gpt-4",
-      messages: [
+    // First, generate the personality using chat completions
+    const response = await openai.responses.parse({
+      model: "gpt-5",
+      input: [
         {
           role: "system",
           content: `You are an AI that generates chatbot personalities and conversation scenarios.
@@ -24,23 +34,53 @@ export async function generatePersonality(userPreferences: string) {
           content: userPreferences,
         },
       ],
-      response_format: { type: "json_object" },
+      text: {
+        format: zodTextFormat(PersonalityObj, "personality_traits"),
+      },
     });
 
-    const result = JSON.parse(completion.choices[0].message.content || "{}");
+    const result = response.output_parsed;
 
-    // Save to database
+    if (!result) {
+      return { success: false, error: "Failed to parse personality response" };
+    }
+
+    // Create a conversation with the generated personality using Conversations API
+    const conversation = await openai.conversations.create({
+      metadata: {
+        personality: result.traits.join(", "),
+        tone: result.tone,
+        background: result.background,
+        scenario: result.scenario,
+      },
+      items: [
+        {
+          type: "message",
+          role: "system",
+          content: `You are a chatbot with the following personality:
+            Traits: ${result.traits.join(", ")}
+            Tone: ${result.tone}
+            Background: ${result.background}
+            Scenario: ${result.scenario}
+
+            Engage in natural conversation while maintaining this personality.`,
+        },
+      ],
+    });
+
+    // Save to database with conversation ID
     const session = await sql`
-      INSERT INTO sessions (personality, scenario)
-      VALUES (${JSON.stringify(result)}, ${result.scenario})
-      RETURNING id, personality, scenario, created_at
+      INSERT INTO sessions (conversation_id, personality, scenario)
+      VALUES (${conversation.id}, ${JSON.stringify(result)}, ${result.scenario})
+      RETURNING id, conversation_id, personality, scenario, created_at
     `;
 
     return {
       success: true,
       sessionId: session.rows[0].id,
+      conversationId: conversation.id,
       personality: result as Personality,
-      scenario: result.scenario,
+      scenario: result.scenario
     };
   } catch (error) {
     console.error("Error generating personality:", error);

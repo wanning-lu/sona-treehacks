@@ -9,13 +9,14 @@ export async function createTables() {
     CREATE TABLE IF NOT EXISTS sessions (
       id SERIAL PRIMARY KEY,
       user_id TEXT,
+      conversation_id TEXT NOT NULL,
       personality JSONB,
       scenario TEXT,
       created_at TIMESTAMP DEFAULT NOW()
     )
   `;
 
-  // Create transcripts table for storing conversation messages
+  // Create transcripts table for storing conversation messages (cached from OpenAI)
   await sql`
     CREATE TABLE IF NOT EXISTS transcripts (
       id SERIAL PRIMARY KEY,
